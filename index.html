@@ -375,6 +375,11 @@ img{max-width:100%;}
           <span class="section-title">Algebra i zadania z treścią</span>
           <span class="section-desc">Osiem zadań tekstowych krok po kroku: identyfikacja x, ułożenie równania, rozwiązanie, odpowiedź.</span>
         </button>
+        <button type="button" class="section-card" id="home-homework">
+          <span class="section-icon">📝</span>
+          <span class="section-title">Praca domowa</span>
+          <span class="section-desc">Zadane zadania z treścią — te same cztery kroki co w algebrze, żeby móc sprawdzić się samodzielnie.</span>
+        </button>
       </div>
     </div>
   </section>
@@ -594,6 +599,20 @@ img{max-width:100%;}
     <div id="algebra-list"></div>
   </section>
 
+  <!-- HOMEWORK -->
+  <section id="screen-homework" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-homework">← Powrót do menu</button>
+    </div>
+    <span class="eyebrow">Praca domowa</span>
+    <h1 class="disp" style="font-size:1.7rem; margin:6px 0 8px;">Zadania domowe</h1>
+    <p class="algebra-intro">Te same cztery kroki co w algebrze: co oznacza x, jakie równanie z tego wynika,
+      jak je rozwiązać i co ostatecznie odpowiadacie. Spróbujcie samodzielnie, zanim odsłonicie krok.</p>
+
+    <div class="algebra-toc" id="homework-toc"></div>
+    <div id="homework-list"></div>
+  </section>
+
 </div>
 
 <script>
@@ -726,6 +745,27 @@ img{max-width:100%;}
       ] }
   ];
   var algebraRevealed = ALGEBRA.map(function(){ return 0; }); // ile kroków odsłoniętych, na zadanie
+
+  // Praca domowa — zadane osobno, ten sam format co ALGEBRA.
+  var HOMEWORK = [
+    { title:"Bilety",
+      text:"Bilet normalny kosztuje o 10 zł więcej niż bilet ulgowy. Rodzina kupiła 2 bilety normalne i 3 ulgowe, płacąc łącznie 110 zł. Ile kosztuje bilet ulgowy?",
+      steps:[
+        { label:"1. Co oznacza x?", body:"x = cena biletu ulgowego (normalny = x + 10)" },
+        { label:"2. Równanie", body:"2 · (x + 10) + 3x = 110" },
+        { label:"3. Rozwiązanie", body:"2x + 20 + 3x = 110  →  5x = 90  →  x = 18" },
+        { label:"4. Odpowiedź", body:"Bilet ulgowy kosztuje 18 zł (normalny 28 zł).", note:"Częsty błąd: pomnożenie tylko x przez 2, bez uwzględnienia +10 w nawiasie." }
+      ] },
+    { title:"Mama i córka",
+      text:"Mama jest obecnie 3 razy starsza od córki. Za 12 lat będzie od niej 2 razy starsza. Ile lat ma teraz córka, a ile mama?",
+      steps:[
+        { label:"1. Co oznacza x?", body:"x = wiek córki dzisiaj (mama ma dziś 3x lat)" },
+        { label:"2. Równanie", body:"3x + 12 = 2 · (x + 12)" },
+        { label:"3. Rozwiązanie", body:"3x + 12 = 2x + 24  →  x = 12" },
+        { label:"4. Odpowiedź", body:"Córka ma dziś 12 lat (mama ma 36 lat).", note:"Częsty błąd: dodanie 12 lat tylko do wieku mamy, bez dodania 12 lat do wieku córki po drugiej stronie równania." }
+      ] }
+  ];
+  var homeworkRevealed = HOMEWORK.map(function(){ return 0; }); // ile kroków odsłoniętych, na zadanie
 
   var mode = "team"; // "team" | "race"
   var players = [
@@ -1088,9 +1128,88 @@ img{max-width:100%;}
     });
   }
 
+  function renderHomeworkCard(i){
+    var card = el("hw-problem-" + i);
+    var linesBox = card.querySelector(".step-lines");
+    var dotsBox = card.querySelector(".step-dots");
+    var btn = card.querySelector(".reveal-btn");
+    var revealed = homeworkRevealed[i];
+    linesBox.innerHTML = "";
+    for (var s = 0; s < revealed; s++){
+      var step = HOMEWORK[i].steps[s];
+      linesBox.appendChild(algebraStepLine({ label:step.label, body:step.body, note:step.note, isAnswer: s === 3 }));
+    }
+    dotsBox.innerHTML = "";
+    for (var d = 0; d < 4; d++){
+      var dot = document.createElement("span");
+      dot.className = "step-dot" + (d < revealed ? " on" : "");
+      dotsBox.appendChild(dot);
+    }
+    if (revealed === 0) btn.textContent = "Odpowiedź →";
+    else if (revealed < 4) btn.textContent = "Następny krok →";
+    else btn.textContent = "Ukryj kroki";
+  }
+
+  function buildHomework(){
+    var toc = el("homework-toc");
+    var list = el("homework-list");
+    if (toc.children.length) return; // już zbudowane
+    toc.innerHTML = "";
+    list.innerHTML = "";
+    HOMEWORK.forEach(function(prob, i){
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "toc-chip";
+      chip.textContent = (i+1) + ". " + prob.title;
+      chip.addEventListener("click", function(){
+        el("hw-problem-" + i).scrollIntoView({ behavior:"smooth", block:"start" });
+      });
+      toc.appendChild(chip);
+
+      var card = document.createElement("div");
+      card.className = "problem-card";
+      card.id = "hw-problem-" + i;
+
+      var num = document.createElement("span");
+      num.className = "problem-num";
+      num.textContent = "Zadanie " + (i+1) + " · " + prob.title;
+      card.appendChild(num);
+
+      var text = document.createElement("p");
+      text.className = "problem-text";
+      text.textContent = prob.text;
+      card.appendChild(text);
+
+      var controls = document.createElement("div");
+      controls.className = "reveal-controls";
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "reveal-btn";
+      btn.textContent = "Odpowiedź →";
+      btn.addEventListener("click", function(){
+        if (homeworkRevealed[i] >= 4) homeworkRevealed[i] = 0;
+        else homeworkRevealed[i]++;
+        renderHomeworkCard(i);
+        saveState();
+      });
+      var dots = document.createElement("span");
+      dots.className = "step-dots";
+      controls.appendChild(btn);
+      controls.appendChild(dots);
+      card.appendChild(controls);
+
+      var lines = document.createElement("div");
+      lines.className = "step-lines";
+      card.appendChild(lines);
+
+      list.appendChild(card);
+      renderHomeworkCard(i);
+    });
+  }
+
   // ---- home / section navigation ----
   function goHome(){
-    hide("screen-start"); hide("screen-algebra");
+    hide("screen-start"); hide("screen-algebra"); hide("screen-homework");
     show("screen-home");
     saveState();
   }
@@ -1106,8 +1225,15 @@ img{max-width:100%;}
     show("screen-algebra");
     saveState();
   });
+  el("home-homework").addEventListener("click", function(){
+    buildHomework();
+    hide("screen-home");
+    show("screen-homework");
+    saveState();
+  });
   el("back-home-start").addEventListener("click", goHome);
   el("back-home-algebra").addEventListener("click", goHome);
+  el("back-home-homework").addEventListener("click", goHome);
 
   // ---- mode selector ----
   document.querySelectorAll(".mode-card").forEach(function(card){
@@ -1156,6 +1282,7 @@ img{max-width:100%;}
     if (!el("screen-results").hidden) return "results";
     if (!el("screen-breakdown").hidden) return "breakdown";
     if (!el("screen-algebra").hidden) return "algebra";
+    if (!el("screen-homework").hidden) return "homework";
     if (!el("screen-start").hidden) return "start";
     return "home";
   }
@@ -1163,7 +1290,8 @@ img{max-width:100%;}
   function saveState(){
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        mode:mode, players:players, turn:turn, phase:currentPhase(), algebraRevealed:algebraRevealed
+        mode:mode, players:players, turn:turn, phase:currentPhase(),
+        algebraRevealed:algebraRevealed, homeworkRevealed:homeworkRevealed
       }));
     }catch(e){}
   }
@@ -1190,13 +1318,17 @@ img{max-width:100%;}
       if (data.algebraRevealed && data.algebraRevealed.length === ALGEBRA.length){
         algebraRevealed = data.algebraRevealed;
       }
+      if (data.homeworkRevealed && data.homeworkRevealed.length === HOMEWORK.length){
+        homeworkRevealed = data.homeworkRevealed;
+      }
       hide("screen-home"); hide("screen-start"); hide("screen-game"); hide("screen-bonus");
-      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra");
+      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-homework");
       if (data.phase === "game"){ show("screen-game"); renderQuestion(); }
       else if (data.phase === "bonus"){ show("screen-bonus"); }
       else if (data.phase === "results"){ show("screen-results"); goToResults(); }
       else if (data.phase === "breakdown"){ show("screen-results"); goToResults(); goToBreakdown(); }
       else if (data.phase === "algebra"){ buildAlgebra(); show("screen-algebra"); }
+      else if (data.phase === "homework"){ buildHomework(); show("screen-homework"); }
       else { show("screen-home"); }
     } else {
       show("screen-home");
