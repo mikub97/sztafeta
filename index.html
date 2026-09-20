@@ -66,6 +66,14 @@ img{max-width:100%;}
 
 .wrap{max-width:900px; margin:0 auto;}
 
+.reset-fab{
+  position:fixed; top:calc(10px + env(safe-area-inset-top, 0px)); right:10px; z-index:50;
+  background:var(--surface); border:1px solid var(--border); border-radius:999px;
+  padding:6px 13px; font-size:.78rem; font-weight:600; color:var(--text-muted); cursor:pointer;
+  box-shadow:var(--shadow); font-family:inherit;
+}
+.reset-fab:hover{border-color:var(--bad); color:var(--bad);}
+
 /* ---------- start screen ---------- */
 .start-card{
   background:var(--surface); border:1px solid var(--border); border-radius:22px;
@@ -345,6 +353,8 @@ img{max-width:100%;}
 </style>
 </head>
 <body>
+
+<button type="button" class="reset-fab" id="global-reset" title="Wyczyść zapisany postęp i zacznij od nowa">↺ Reset</button>
 
 <div class="wrap">
 
@@ -1164,6 +1174,12 @@ img{max-width:100%;}
       return raw ? JSON.parse(raw) : null;
     }catch(e){ return null; }
   }
+
+  el("global-reset").addEventListener("click", function(){
+    if (!confirm("Wyczyścić zapisany postęp i zacząć od nowa?")) return;
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    location.reload();
+  });
 
   function boot(){
     var data = loadState();
