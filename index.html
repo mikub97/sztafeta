@@ -446,6 +446,9 @@ img{max-width:100%;}
 
   <!-- GAME -->
   <section id="screen-game" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-game">← Powrót do menu</button>
+    </div>
     <div class="topbar">
       <h1 class="disp">Sztafeta na Szczyt</h1>
       <span class="round-counter" id="round-counter">Pytanie 1 / 20</span>
@@ -505,6 +508,9 @@ img{max-width:100%;}
 
   <!-- BONUS -->
   <section id="screen-bonus" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-bonus">← Powrót do menu</button>
+    </div>
     <div class="bonus-wrap">
       <div class="bonus-head">
         <span class="eyebrow">Runda bonusowa · razem, na głos</span>
@@ -558,6 +564,9 @@ img{max-width:100%;}
 
   <!-- RESULTS -->
   <section id="screen-results" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-results">← Powrót do menu</button>
+    </div>
     <div class="results">
       <h1 class="disp">Dotarliście na szczyt! 🚩</h1>
       <p class="lead">Egzamin jest w maju 2027 — dziś liczyło się tylko to, żeby zobaczyć, od czego zaczynamy.</p>
@@ -596,6 +605,9 @@ img{max-width:100%;}
 
   <!-- BREAKDOWN (final page) -->
   <section id="screen-breakdown" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-breakdown">← Powrót do menu</button>
+    </div>
     <div class="results">
       <h1 class="disp">Co komu poszło</h1>
       <p class="lead">Dla każdego z was — temat po temacie, tak jak odpowiadaliście.</p>
@@ -1502,7 +1514,8 @@ img{max-width:100%;}
 
   // ---- home / section navigation ----
   function goHome(){
-    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
+    hide("screen-start"); hide("screen-game"); hide("screen-bonus"); hide("screen-results");
+    hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
     hide("screen-praca-domowa"); hide("screen-potegi");
     show("screen-home");
     saveState();
@@ -1543,12 +1556,20 @@ img{max-width:100%;}
     show("screen-potegi");
     saveState();
   });
+  function goHomeFromGame(){
+    if (confirm("Wrócić do menu? Postęp tej rozgrywki zostanie utracony.")) goHome();
+  }
+
   el("back-home-start").addEventListener("click", goHome);
   el("back-home-rachunki").addEventListener("click", goHome);
   el("back-home-algebra").addEventListener("click", goHome);
   el("back-home-wiek").addEventListener("click", goHome);
   el("back-home-praca-domowa").addEventListener("click", goHome);
   el("back-home-potegi").addEventListener("click", goHome);
+  el("back-home-game").addEventListener("click", goHomeFromGame);
+  el("back-home-bonus").addEventListener("click", goHome);
+  el("back-home-results").addEventListener("click", goHome);
+  el("back-home-breakdown").addEventListener("click", goHome);
 
   // ---- mode selector ----
   document.querySelectorAll(".mode-card").forEach(function(card){
@@ -1566,8 +1587,11 @@ img{max-width:100%;}
   el("start-btn").addEventListener("click", function(){
     var n1 = el("name1").value.trim() || "Gracz 1";
     var n2 = el("name2").value.trim() || "Gracz 2";
-    players[0].name = n1;
-    players[1].name = n2;
+    players = [
+      { name:n1, correct:0, answers:[] },
+      { name:n2, correct:0, answers:[] }
+    ];
+    turn = 0;
     hide("screen-start");
     show("screen-game");
     renderQuestion();
