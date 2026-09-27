@@ -378,6 +378,11 @@ img{max-width:100%;}
           <span class="section-title">Rachunki, ułamki i złożona arytmetyka</span>
           <span class="section-desc">Kolejność działań, ułamki zwykłe i mieszane, rachunki „na pieniądzach”, potęgi i pierwiastki — krok po kroku.</span>
         </button>
+        <button type="button" class="section-card" id="home-wiek">
+          <span class="section-icon">👴</span>
+          <span class="section-title">Zadania na wiek</span>
+          <span class="section-desc">Dziadek i wnuk, rodzeństwo, ojciec i synowie — równania z wiekiem w przeszłości i przyszłości, krok po kroku.</span>
+        </button>
       </div>
     </div>
   </section>
@@ -610,6 +615,21 @@ img{max-width:100%;}
 
     <div class="algebra-toc" id="rachunki-toc"></div>
     <div id="rachunki-list"></div>
+  </section>
+
+  <!-- WIEK -->
+  <section id="screen-wiek" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-wiek">← Powrót do menu</button>
+    </div>
+    <span class="eyebrow">Zadania na wiek</span>
+    <h1 class="disp" style="font-size:1.7rem; margin:6px 0 8px;">Zadania na wiek</h1>
+    <p class="algebra-intro">Ten sam schemat co w algebrze: co oznacza x, jakie równanie z tego wynika,
+      jak je rozwiązać i co ostatecznie odpowiadacie. W tych zadaniach x trzeba czasem cofnąć albo
+      przesunąć w czasie — czytajcie uważnie, czy pytanie dotyczy przeszłości, teraźniejszości czy przyszłości.</p>
+
+    <div class="algebra-toc" id="wiek-toc"></div>
+    <div id="wiek-list"></div>
   </section>
 
 </div>
@@ -847,6 +867,35 @@ img{max-width:100%;}
       ] }
   ];
   var rachunkiRevealed = RACHUNKI.map(function(){ return 0; });
+
+  // Zadania na wiek — x trzeba czasem cofnąć w czasie (przeszłość) albo przesunąć w przód (przyszłość).
+  var WIEK = [
+    { title:"Dziadek i wnuk (przeszłość)",
+      text:"Dziadek ma obecnie 68 lat, a jego wnuk 12 lat. Ile lat temu dziadek był 8 razy starszy od wnuka?",
+      steps:[
+        { label:"1. Co oznacza x?", body:"x = liczba lat temu (dziadek miał wtedy 68 − x, wnuk 12 − x)" },
+        { label:"2. Równanie", body:"68 − x = 8 · (12 − x)" },
+        { label:"3. Rozwiązanie", body:"68 − x = 96 − 8x  →  7x = 28  →  x = 4" },
+        { label:"4. Odpowiedź", body:"4 lata temu (dziadek miał wtedy 64 lata, wnuk 8 lat).", note:"Częsty błąd: brak rozłożenia „8 ·” na obie strony nawiasu (8 · 12 i 8 · x)." }
+      ] },
+    { title:"Brat i siostra (przeszłość i teraźniejszość)",
+      text:"Brat jest obecnie o 6 lat starszy od siostry. Cztery lata temu był od niej 2 razy starszy. Ile lat ma teraz każde z nich?",
+      steps:[
+        { label:"1. Co oznacza x?", body:"x = wiek siostry dzisiaj (brat ma dziś x + 6)" },
+        { label:"2. Równanie", body:"(x + 6 − 4) = 2 · (x − 4)" },
+        { label:"3. Rozwiązanie", body:"x + 2 = 2x − 8  →  x = 10" },
+        { label:"4. Odpowiedź", body:"Siostra ma dziś 10 lat, brat 16 lat.", note:"Częsty błąd: odjęcie 4 lat tylko po jednej stronie równania (np. tylko od siostry, a nie i od brata)." }
+      ] },
+    { title:"Ojciec i dwaj synowie (suma lat)",
+      text:"Ojciec ma obecnie 42 lata, a jego dwaj synowie mają 8 i 12 lat. Za ile lat wiek ojca będzie równy sumie lat obu jego synów?",
+      steps:[
+        { label:"1. Co oznacza x?", body:"x = liczba lat, po których to nastąpi (ojciec: 42 + x, synowie: 8 + x oraz 12 + x)" },
+        { label:"2. Równanie", body:"42 + x = (8 + x) + (12 + x)" },
+        { label:"3. Rozwiązanie", body:"42 + x = 20 + 2x  →  x = 22" },
+        { label:"4. Odpowiedź", body:"Za 22 lata (ojciec: 64 lata, synowie: 30 i 34 — razem 64).", note:"Częsty błąd: dodanie x tylko do jednego syna albo pominięcie go po stronie ojca." }
+      ] }
+  ];
+  var wiekRevealed = WIEK.map(function(){ return 0; });
 
   var mode = "team"; // "team" | "race"
   var players = [
@@ -1223,10 +1272,13 @@ img{max-width:100%;}
   function buildRachunki(){
     buildProblemSection(RACHUNKI, rachunkiRevealed, "rachunki-toc", "rachunki-list", "rnum-");
   }
+  function buildWiek(){
+    buildProblemSection(WIEK, wiekRevealed, "wiek-toc", "wiek-list", "wnum-");
+  }
 
   // ---- home / section navigation ----
   function goHome(){
-    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki");
+    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
     show("screen-home");
     saveState();
   }
@@ -1248,9 +1300,16 @@ img{max-width:100%;}
     show("screen-rachunki");
     saveState();
   });
+  el("home-wiek").addEventListener("click", function(){
+    buildWiek();
+    hide("screen-home");
+    show("screen-wiek");
+    saveState();
+  });
   el("back-home-start").addEventListener("click", goHome);
   el("back-home-rachunki").addEventListener("click", goHome);
   el("back-home-algebra").addEventListener("click", goHome);
+  el("back-home-wiek").addEventListener("click", goHome);
 
   // ---- mode selector ----
   document.querySelectorAll(".mode-card").forEach(function(card){
@@ -1300,6 +1359,7 @@ img{max-width:100%;}
     if (!el("screen-breakdown").hidden) return "breakdown";
     if (!el("screen-algebra").hidden) return "algebra";
     if (!el("screen-rachunki").hidden) return "rachunki";
+    if (!el("screen-wiek").hidden) return "wiek";
     if (!el("screen-start").hidden) return "start";
     return "home";
   }
@@ -1308,7 +1368,7 @@ img{max-width:100%;}
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         mode:mode, players:players, turn:turn, phase:currentPhase(),
-        algebraRevealed:algebraRevealed, rachunkiRevealed:rachunkiRevealed
+        algebraRevealed:algebraRevealed, rachunkiRevealed:rachunkiRevealed, wiekRevealed:wiekRevealed
       }));
     }catch(e){}
   }
@@ -1332,14 +1392,18 @@ img{max-width:100%;}
       if (data.rachunkiRevealed && data.rachunkiRevealed.length === RACHUNKI.length){
         rachunkiRevealed = data.rachunkiRevealed;
       }
+      if (data.wiekRevealed && data.wiekRevealed.length === WIEK.length){
+        wiekRevealed = data.wiekRevealed;
+      }
       hide("screen-home"); hide("screen-start"); hide("screen-game"); hide("screen-bonus");
-      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki");
+      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
       if (data.phase === "game"){ show("screen-game"); renderQuestion(); }
       else if (data.phase === "bonus"){ show("screen-bonus"); }
       else if (data.phase === "results"){ show("screen-results"); goToResults(); }
       else if (data.phase === "breakdown"){ show("screen-results"); goToResults(); goToBreakdown(); }
       else if (data.phase === "algebra"){ buildAlgebra(); show("screen-algebra"); }
       else if (data.phase === "rachunki"){ buildRachunki(); show("screen-rachunki"); }
+      else if (data.phase === "wiek"){ buildWiek(); show("screen-wiek"); }
       else { show("screen-home"); }
     } else {
       show("screen-home");
