@@ -383,6 +383,11 @@ img{max-width:100%;}
           <span class="section-title">Zadania na wiek</span>
           <span class="section-desc">Dziadek i wnuk, rodzeństwo, ojciec i synowie — równania z wiekiem w przeszłości i przyszłości, krok po kroku.</span>
         </button>
+        <button type="button" class="section-card" id="home-praca-domowa">
+          <span class="section-icon">📝</span>
+          <span class="section-title">Praca domowa</span>
+          <span class="section-desc">Osiem zadań rachunkowych: kolejność działań, potęgi, pierwiastki i ułamki — do samodzielnego sprawdzenia krok po kroku.</span>
+        </button>
       </div>
     </div>
   </section>
@@ -630,6 +635,20 @@ img{max-width:100%;}
 
     <div class="algebra-toc" id="wiek-toc"></div>
     <div id="wiek-list"></div>
+  </section>
+
+  <!-- PRACA DOMOWA -->
+  <section id="screen-praca-domowa" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-praca-domowa">← Powrót do menu</button>
+    </div>
+    <span class="eyebrow">Praca domowa</span>
+    <h1 class="disp" style="font-size:1.7rem; margin:6px 0 8px;">Praca domowa — rachunki</h1>
+    <p class="algebra-intro">Osiem zadań rachunkowych: kolejność działań, potęgi, pierwiastki i ułamki.
+      Policzcie samodzielnie na kartce, a dopiero potem odsłaniajcie kolejne kroki, żeby sprawdzić się.</p>
+
+    <div class="algebra-toc" id="pracadomowa-toc"></div>
+    <div id="pracadomowa-list"></div>
   </section>
 
 </div>
@@ -896,6 +915,76 @@ img{max-width:100%;}
       ] }
   ];
   var wiekRevealed = WIEK.map(function(){ return 0; });
+
+  // Praca domowa — same rachunki co w sekcji RACHUNKI (kolejność działań, potęgi, pierwiastki, ułamki),
+  // bez zadań tekstowych z pieniędzmi.
+  var PRACA_DOMOWA = [
+    { title:"Kolejność działań — nawias i mnożenie",
+      text:"Oblicz: 24 − (6 + 2) × 2 + 5",
+      steps:[
+        { label:"1. Nawias", body:"6 + 2 = 8" },
+        { label:"2. Mnożenie", body:"8 × 2 = 16" },
+        { label:"3. Odejmowanie", body:"24 − 16 = 8" },
+        { label:"4. Wynik", body:"8 + 5 = 13", note:"Nawias liczymy zawsze pierwszy, niezależnie od tego, jakie działanie jest po nim." }
+      ] },
+    { title:"Kolejność działań — potęga i dzielenie",
+      text:"Oblicz: 3² × 4 ÷ 6 + 7",
+      steps:[
+        { label:"1. Potęga", body:"3² = 9" },
+        { label:"2. Mnożenie i dzielenie (od lewej)", body:"9 × 4 = 36, a 36 ÷ 6 = 6" },
+        { label:"3. Dodawanie", body:"6 + 7" },
+        { label:"4. Wynik", body:"13", note:"Mnożenie i dzielenie mają ten sam priorytet — liczymy je w kolejności występowania, od lewej do prawej." }
+      ] },
+    { title:"Kolejność działań — dwa nawiasy",
+      text:"Oblicz: (10 − 4) × (3 + 5) ÷ 4",
+      steps:[
+        { label:"1. Nawiasy", body:"10 − 4 = 6, a 3 + 5 = 8" },
+        { label:"2. Mnożenie", body:"6 × 8 = 48" },
+        { label:"3. Dzielenie", body:"48 ÷ 4 = 12" },
+        { label:"4. Wynik", body:"12", note:"Gdy jest kilka nawiasów, liczymy każdy osobno, zanim przejdziemy do dalszych działań." }
+      ] },
+    { title:"Potęgi — suma i różnica",
+      text:"Oblicz: 2⁴ + 3³ − 5²",
+      steps:[
+        { label:"1. Potęgi", body:"2⁴ = 16, 3³ = 27, a 5² = 25" },
+        { label:"2. Dodawanie", body:"16 + 27 = 43" },
+        { label:"3. Odejmowanie", body:"43 − 25" },
+        { label:"4. Wynik", body:"18", note:"Przy potędze podstawę mnożymy przez siebie tyle razy, ile wynosi wykładnik (2⁴ = 2×2×2×2, nie 2×4)." }
+      ] },
+    { title:"Pierwiastki — trzy składniki",
+      text:"Oblicz: √81 − √25 + √9",
+      steps:[
+        { label:"1. Pierwiastki", body:"√81 = 9, √25 = 5, a √9 = 3" },
+        { label:"2. Odejmowanie", body:"9 − 5 = 4" },
+        { label:"3. Dodawanie", body:"4 + 3" },
+        { label:"4. Wynik", body:"7", note:"Przy samych + i − liczymy od lewej do prawej, tak jak są zapisane." }
+      ] },
+    { title:"Kolejność działań — potęga w nawiasie",
+      text:"Oblicz: (7 − 3)² × 2 + 6 ÷ 3",
+      steps:[
+        { label:"1. Nawias i potęga", body:"7 − 3 = 4, a 4² = 16" },
+        { label:"2. Mnożenie i dzielenie", body:"16 × 2 = 32, a 6 ÷ 3 = 2" },
+        { label:"3. Dodawanie", body:"32 + 2" },
+        { label:"4. Wynik", body:"34", note:"Częsty błąd: dodanie 2 i 6 przed wykonaniem mnożenia i dzielenia po obu stronach znaku +." }
+      ] },
+    { title:"Ułamki — dodawanie trzech ułamków",
+      text:"Oblicz: 1/4 + 1/6 + 1/3",
+      steps:[
+        { label:"1. Wspólny mianownik", body:"Najmniejszy wspólny mianownik dla 4, 6 i 3 to 12" },
+        { label:"2. Zamiana ułamków", body:"1/4 = 3/12, 1/6 = 2/12, a 1/3 = 4/12" },
+        { label:"3. Dodawanie", body:"3/12 + 2/12 + 4/12 = 9/12" },
+        { label:"4. Wynik", body:"9/12 = 3/4 (po skróceniu przez 3)", note:"Najmniejszy wspólny mianownik ułatwia dodawanie — nie trzeba mnożyć wszystkich mianowników przez siebie." }
+      ] },
+    { title:"Ułamki — mnożenie i skracanie",
+      text:"Oblicz: 4/9 × 3/8",
+      steps:[
+        { label:"1. Mnożenie liczników i mianowników", body:"4 × 3 = 12, a 9 × 8 = 72" },
+        { label:"2. Ułamek przed skróceniem", body:"12/72" },
+        { label:"3. Skracanie", body:"Dzielimy licznik i mianownik przez NWD(12, 72) = 12" },
+        { label:"4. Wynik", body:"1/6", note:"Warto skracać ułamki przed mnożeniem (np. 3 z 9 i 4 z 8) — daje to mniejsze liczby do mnożenia." }
+      ] }
+  ];
+  var pracaDomowaRevealed = PRACA_DOMOWA.map(function(){ return 0; });
 
   var mode = "team"; // "team" | "race"
   var players = [
@@ -1275,10 +1364,13 @@ img{max-width:100%;}
   function buildWiek(){
     buildProblemSection(WIEK, wiekRevealed, "wiek-toc", "wiek-list", "wnum-");
   }
+  function buildPracaDomowa(){
+    buildProblemSection(PRACA_DOMOWA, pracaDomowaRevealed, "pracadomowa-toc", "pracadomowa-list", "pdnum-");
+  }
 
   // ---- home / section navigation ----
   function goHome(){
-    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
+    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek"); hide("screen-praca-domowa");
     show("screen-home");
     saveState();
   }
@@ -1306,10 +1398,17 @@ img{max-width:100%;}
     show("screen-wiek");
     saveState();
   });
+  el("home-praca-domowa").addEventListener("click", function(){
+    buildPracaDomowa();
+    hide("screen-home");
+    show("screen-praca-domowa");
+    saveState();
+  });
   el("back-home-start").addEventListener("click", goHome);
   el("back-home-rachunki").addEventListener("click", goHome);
   el("back-home-algebra").addEventListener("click", goHome);
   el("back-home-wiek").addEventListener("click", goHome);
+  el("back-home-praca-domowa").addEventListener("click", goHome);
 
   // ---- mode selector ----
   document.querySelectorAll(".mode-card").forEach(function(card){
@@ -1360,6 +1459,7 @@ img{max-width:100%;}
     if (!el("screen-algebra").hidden) return "algebra";
     if (!el("screen-rachunki").hidden) return "rachunki";
     if (!el("screen-wiek").hidden) return "wiek";
+    if (!el("screen-praca-domowa").hidden) return "praca-domowa";
     if (!el("screen-start").hidden) return "start";
     return "home";
   }
@@ -1368,7 +1468,8 @@ img{max-width:100%;}
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         mode:mode, players:players, turn:turn, phase:currentPhase(),
-        algebraRevealed:algebraRevealed, rachunkiRevealed:rachunkiRevealed, wiekRevealed:wiekRevealed
+        algebraRevealed:algebraRevealed, rachunkiRevealed:rachunkiRevealed, wiekRevealed:wiekRevealed,
+        pracaDomowaRevealed:pracaDomowaRevealed
       }));
     }catch(e){}
   }
@@ -1395,8 +1496,11 @@ img{max-width:100%;}
       if (data.wiekRevealed && data.wiekRevealed.length === WIEK.length){
         wiekRevealed = data.wiekRevealed;
       }
+      if (data.pracaDomowaRevealed && data.pracaDomowaRevealed.length === PRACA_DOMOWA.length){
+        pracaDomowaRevealed = data.pracaDomowaRevealed;
+      }
       hide("screen-home"); hide("screen-start"); hide("screen-game"); hide("screen-bonus");
-      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
+      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek"); hide("screen-praca-domowa");
       if (data.phase === "game"){ show("screen-game"); renderQuestion(); }
       else if (data.phase === "bonus"){ show("screen-bonus"); }
       else if (data.phase === "results"){ show("screen-results"); goToResults(); }
@@ -1404,6 +1508,7 @@ img{max-width:100%;}
       else if (data.phase === "algebra"){ buildAlgebra(); show("screen-algebra"); }
       else if (data.phase === "rachunki"){ buildRachunki(); show("screen-rachunki"); }
       else if (data.phase === "wiek"){ buildWiek(); show("screen-wiek"); }
+      else if (data.phase === "praca-domowa"){ buildPracaDomowa(); show("screen-praca-domowa"); }
       else { show("screen-home"); }
     } else {
       show("screen-home");
