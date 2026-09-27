@@ -66,6 +66,14 @@ img{max-width:100%;}
 
 .wrap{max-width:900px; margin:0 auto;}
 
+.frac{
+  display:inline-flex; flex-direction:column; justify-content:center; align-items:stretch;
+  vertical-align:middle; text-align:center; font-size:.82em; line-height:1.15;
+  margin:0 .07em; position:relative; top:-.05em;
+}
+.frac .num{padding:0 .2em .05em; border-bottom:1.5px solid currentColor;}
+.frac .den{padding:.05em .2em 0;}
+
 /* ---------- start screen ---------- */
 .start-card{
   background:var(--surface); border:1px solid var(--border); border-radius:22px;
@@ -858,6 +866,14 @@ img{max-width:100%;}
     return a;
   }
 
+  // Zamienia zapis "3/4" na złożony ułamek (licznik nad kreską), zamiast wyglądać jak dzielenie.
+  function fracHtml(str){
+    var esc = String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return esc.replace(/(\d+)\/(\d+)/g, function(_, num, den){
+      return '<span class="frac"><span class="num">' + num + '</span><span class="den">' + den + '</span></span>';
+    });
+  }
+
   var el = function(id){ return document.getElementById(id); };
   var show = function(id){ el(id).hidden = false; };
   var hide = function(id){ el(id).hidden = true; };
@@ -904,7 +920,7 @@ img{max-width:100%;}
     var q = round[currentVersion()];
     el("round-counter").textContent = "Pytanie " + (turn+1) + " / 20";
     el("q-module").textContent = round.module;
-    el("q-text").textContent = q.text;
+    el("q-text").innerHTML = fracHtml(q.text);
     currentChoices = shuffled(q.choices.map(function(text, i){ return { text:text, isCorrect: i === q.correct }; }));
     var box = el("choices");
     box.innerHTML = "";
@@ -912,7 +928,7 @@ img{max-width:100%;}
       var btn = document.createElement("button");
       btn.className = "choice";
       btn.type = "button";
-      btn.textContent = item.text;
+      btn.innerHTML = fracHtml(item.text);
       btn.addEventListener("click", function(){ pickAnswer(i); });
       box.appendChild(btn);
     });
@@ -941,11 +957,11 @@ img{max-width:100%;}
       players[idx].correct++;
       fb.className = "feedback good";
       el("feedback-emoji").textContent = "✅";
-      el("feedback-text").innerHTML = "<b>Jest!</b> " + q.note;
+      el("feedback-text").innerHTML = "<b>Jest!</b> " + fracHtml(q.note);
     } else {
       fb.className = "feedback bad";
       el("feedback-emoji").textContent = "💡";
-      el("feedback-text").innerHTML = "<b>Prawie.</b> " + q.note;
+      el("feedback-text").innerHTML = "<b>Prawie.</b> " + fracHtml(q.note);
     }
     show("feedback");
     show("next-btn");
@@ -1085,7 +1101,7 @@ img{max-width:100%;}
     label.className = "step-label";
     label.textContent = step.label;
     var body = document.createElement("span");
-    body.textContent = step.body + (step.note ? "  ·  " + step.note : "");
+    body.innerHTML = fracHtml(step.body + (step.note ? "  ·  " + step.note : ""));
     line.appendChild(label);
     line.appendChild(body);
     return line;
@@ -1140,7 +1156,7 @@ img{max-width:100%;}
 
       var text = document.createElement("p");
       text.className = "problem-text";
-      text.textContent = prob.text;
+      text.innerHTML = fracHtml(prob.text);
       card.appendChild(text);
 
       var controls = document.createElement("div");
