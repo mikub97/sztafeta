@@ -66,6 +66,15 @@ img{max-width:100%;}
 
 .wrap{max-width:900px; margin:0 auto;}
 
+.potegi-answer-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
+.potegi-input{
+  flex:1 1 160px; padding:12px 14px; border-radius:12px; border:2px solid var(--border);
+  background:var(--surface-2); color:var(--text); font-size:1.15rem; font-family:inherit;
+  font-variant-numeric:tabular-nums;
+}
+.potegi-input:focus{outline:none; border-color:var(--p1);}
+.potegi-input:disabled{opacity:.7;}
+
 .frac{
   display:inline-flex; flex-direction:column; justify-content:center; align-items:stretch;
   vertical-align:middle; text-align:center; font-size:.82em; line-height:1.15;
@@ -388,6 +397,11 @@ img{max-width:100%;}
           <span class="section-title">Praca domowa</span>
           <span class="section-desc">Osiem zadań rachunkowych: kolejność działań, potęgi, pierwiastki i ułamki — do samodzielnego sprawdzenia krok po kroku.</span>
         </button>
+        <button type="button" class="section-card" id="home-potegi">
+          <span class="section-icon">🧠</span>
+          <span class="section-title">Potęgi i pierwiastki (2–15)</span>
+          <span class="section-desc">Szybkie odpytywanie z pamięci: kwadraty liczb od 2 do 15 (4–225) i pierwiastki kwadratowe, w obie strony.</span>
+        </button>
       </div>
     </div>
   </section>
@@ -649,6 +663,42 @@ img{max-width:100%;}
 
     <div class="algebra-toc" id="pracadomowa-toc"></div>
     <div id="pracadomowa-list"></div>
+  </section>
+
+  <!-- POTĘGI I PIERWIASTKI -->
+  <section id="screen-potegi" hidden>
+    <div class="section-nav">
+      <button type="button" class="back-btn" id="back-home-potegi">← Powrót do menu</button>
+    </div>
+    <span class="eyebrow">Potęgi i pierwiastki</span>
+    <h1 class="disp" style="font-size:1.7rem; margin:6px 0 8px;">Kwadraty liczb 2–15</h1>
+    <p class="algebra-intro">Odpytywanie z pamięci: kwadraty liczb od 2 do 15 (4–225), w obie strony —
+      czasem pytamy o n², czasem o pierwiastek z wyniku.</p>
+
+    <div class="q-card" id="potegi-card" hidden>
+      <div class="topbar" style="margin-bottom:6px;">
+        <span class="round-counter" id="potegi-counter">Pytanie 1 / 28</span>
+        <span class="round-counter" id="potegi-score">Wynik: 0 / 28</span>
+      </div>
+      <p class="q-text" id="potegi-text">?</p>
+      <form id="potegi-form" class="potegi-answer-row" autocomplete="off">
+        <input type="number" inputmode="numeric" id="potegi-input" class="potegi-input" placeholder="Wpisz wynik" autocomplete="off">
+        <button type="submit" class="big-btn" id="potegi-check-btn">Sprawdź</button>
+      </form>
+      <div class="feedback" id="potegi-feedback" hidden>
+        <span class="emoji" id="potegi-feedback-emoji">✅</span>
+        <p id="potegi-feedback-text"></p>
+      </div>
+      <div class="next-row">
+        <button class="big-btn" id="potegi-next-btn" hidden>Dalej →</button>
+      </div>
+    </div>
+
+    <div class="results" id="potegi-finish" hidden>
+      <h1 class="disp">Koniec odpytywania!</h1>
+      <p class="lead">Wynik: <b id="potegi-finish-score">0 / 28</b></p>
+      <button class="big-btn" id="potegi-restart-btn">Jeszcze raz</button>
+    </div>
   </section>
 
 </div>
@@ -985,6 +1035,14 @@ img{max-width:100%;}
       ] }
   ];
   var pracaDomowaRevealed = PRACA_DOMOWA.map(function(){ return 0; });
+
+  // Odpytywanie: kwadraty liczb 2..15 (4..225) i pierwiastki kwadratowe, w losowej kolejności,
+  // odpowiedź wpisuje się ręcznie zamiast wybierać z opcji.
+  var POTEGI_MIN = 2, POTEGI_MAX = 15;
+  var potegiQuestions = [];
+  var potegiIndex = 0;
+  var potegiScore = 0;
+  var potegiAnswered = false;
 
   var mode = "team"; // "team" | "race"
   var players = [
@@ -1368,9 +1426,84 @@ img{max-width:100%;}
     buildProblemSection(PRACA_DOMOWA, pracaDomowaRevealed, "pracadomowa-toc", "pracadomowa-list", "pdnum-");
   }
 
+  // ---- odpytywanie: potęgi i pierwiastki ----
+  function buildPotegiQuestions(){
+    var list = [];
+    for (var n = POTEGI_MIN; n <= POTEGI_MAX; n++){
+      list.push({ text: n + "²", correct: n * n, kind:"square", n:n });
+      list.push({ text: "√" + (n * n), correct: n, kind:"root", n:n });
+    }
+    return shuffled(list);
+  }
+
+  function renderPotegiQuestion(){
+    potegiAnswered = false;
+    var q = potegiQuestions[potegiIndex];
+    el("potegi-counter").textContent = "Pytanie " + (potegiIndex + 1) + " / " + potegiQuestions.length;
+    el("potegi-score").textContent = "Wynik: " + potegiScore + " / " + potegiQuestions.length;
+    el("potegi-text").innerHTML = fracHtml(q.text) + " = ?";
+    var input = el("potegi-input");
+    input.value = "";
+    input.disabled = false;
+    el("potegi-check-btn").hidden = false;
+    hide("potegi-feedback");
+    hide("potegi-next-btn");
+    show("potegi-card");
+    input.focus();
+  }
+
+  function checkPotegi(){
+    if (potegiAnswered) return;
+    var input = el("potegi-input");
+    if (input.value.trim() === "") { input.focus(); return; }
+    potegiAnswered = true;
+    input.disabled = true;
+    el("potegi-check-btn").hidden = true;
+    var q = potegiQuestions[potegiIndex];
+    var isCorrect = parseInt(input.value, 10) === q.correct;
+    if (isCorrect) potegiScore++;
+    var fb = el("potegi-feedback");
+    fb.className = "feedback " + (isCorrect ? "good" : "bad");
+    el("potegi-feedback-emoji").textContent = isCorrect ? "✅" : "💡";
+    var correctText = (q.kind === "square") ? (q.n + "² = " + q.correct) : ("√" + (q.n * q.n) + " = " + q.correct);
+    el("potegi-feedback-text").innerHTML = isCorrect ? "Dokładnie tak!" : ("Poprawna odpowiedź: " + fracHtml(correctText) + ".");
+    show("potegi-feedback");
+    el("potegi-score").textContent = "Wynik: " + potegiScore + " / " + potegiQuestions.length;
+    show("potegi-next-btn");
+    el("potegi-next-btn").focus();
+  }
+
+  function nextPotegi(){
+    potegiIndex++;
+    if (potegiIndex >= potegiQuestions.length) finishPotegi();
+    else renderPotegiQuestion();
+  }
+
+  function finishPotegi(){
+    hide("potegi-card");
+    el("potegi-finish-score").textContent = potegiScore + " / " + potegiQuestions.length;
+    show("potegi-finish");
+  }
+
+  function startPotegi(){
+    potegiQuestions = buildPotegiQuestions();
+    potegiIndex = 0;
+    potegiScore = 0;
+    hide("potegi-finish");
+    renderPotegiQuestion();
+  }
+
+  el("potegi-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    checkPotegi();
+  });
+  el("potegi-next-btn").addEventListener("click", nextPotegi);
+  el("potegi-restart-btn").addEventListener("click", startPotegi);
+
   // ---- home / section navigation ----
   function goHome(){
-    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek"); hide("screen-praca-domowa");
+    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
+    hide("screen-praca-domowa"); hide("screen-potegi");
     show("screen-home");
     saveState();
   }
@@ -1404,11 +1537,18 @@ img{max-width:100%;}
     show("screen-praca-domowa");
     saveState();
   });
+  el("home-potegi").addEventListener("click", function(){
+    startPotegi();
+    hide("screen-home");
+    show("screen-potegi");
+    saveState();
+  });
   el("back-home-start").addEventListener("click", goHome);
   el("back-home-rachunki").addEventListener("click", goHome);
   el("back-home-algebra").addEventListener("click", goHome);
   el("back-home-wiek").addEventListener("click", goHome);
   el("back-home-praca-domowa").addEventListener("click", goHome);
+  el("back-home-potegi").addEventListener("click", goHome);
 
   // ---- mode selector ----
   document.querySelectorAll(".mode-card").forEach(function(card){
@@ -1460,6 +1600,7 @@ img{max-width:100%;}
     if (!el("screen-rachunki").hidden) return "rachunki";
     if (!el("screen-wiek").hidden) return "wiek";
     if (!el("screen-praca-domowa").hidden) return "praca-domowa";
+    if (!el("screen-potegi").hidden) return "potegi";
     if (!el("screen-start").hidden) return "start";
     return "home";
   }
@@ -1500,7 +1641,8 @@ img{max-width:100%;}
         pracaDomowaRevealed = data.pracaDomowaRevealed;
       }
       hide("screen-home"); hide("screen-start"); hide("screen-game"); hide("screen-bonus");
-      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek"); hide("screen-praca-domowa");
+      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki"); hide("screen-wiek");
+      hide("screen-praca-domowa"); hide("screen-potegi");
       if (data.phase === "game"){ show("screen-game"); renderQuestion(); }
       else if (data.phase === "bonus"){ show("screen-bonus"); }
       else if (data.phase === "results"){ show("screen-results"); goToResults(); }
@@ -1509,6 +1651,7 @@ img{max-width:100%;}
       else if (data.phase === "rachunki"){ buildRachunki(); show("screen-rachunki"); }
       else if (data.phase === "wiek"){ buildWiek(); show("screen-wiek"); }
       else if (data.phase === "praca-domowa"){ buildPracaDomowa(); show("screen-praca-domowa"); }
+      else if (data.phase === "potegi"){ startPotegi(); show("screen-potegi"); }
       else { show("screen-home"); }
     } else {
       show("screen-home");
