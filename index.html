@@ -66,14 +66,6 @@ img{max-width:100%;}
 
 .wrap{max-width:900px; margin:0 auto;}
 
-.reset-fab{
-  position:fixed; top:calc(10px + env(safe-area-inset-top, 0px)); right:10px; z-index:50;
-  background:var(--surface); border:1px solid var(--border); border-radius:999px;
-  padding:6px 13px; font-size:.78rem; font-weight:600; color:var(--text-muted); cursor:pointer;
-  box-shadow:var(--shadow); font-family:inherit;
-}
-.reset-fab:hover{border-color:var(--bad); color:var(--bad);}
-
 /* ---------- start screen ---------- */
 .start-card{
   background:var(--surface); border:1px solid var(--border); border-radius:22px;
@@ -354,8 +346,6 @@ img{max-width:100%;}
 </head>
 <body>
 
-<button type="button" class="reset-fab" id="global-reset" title="Wyczyść zapisany postęp i zacznij od nowa">↺ Reset</button>
-
 <div class="wrap">
 
   <!-- HOME -->
@@ -375,10 +365,10 @@ img{max-width:100%;}
           <span class="section-title">Algebra i zadania z treścią</span>
           <span class="section-desc">Osiem zadań tekstowych krok po kroku: identyfikacja x, ułożenie równania, rozwiązanie, odpowiedź.</span>
         </button>
-        <button type="button" class="section-card" id="home-homework">
-          <span class="section-icon">📝</span>
-          <span class="section-title">Praca domowa</span>
-          <span class="section-desc">Zadane zadania z treścią — te same cztery kroki co w algebrze, żeby móc sprawdzić się samodzielnie.</span>
+        <button type="button" class="section-card" id="home-rachunki">
+          <span class="section-icon">🔢</span>
+          <span class="section-title">Rachunki, ułamki i złożona arytmetyka</span>
+          <span class="section-desc">Kolejność działań, ułamki zwykłe i mieszane, rachunki „na pieniądzach”, potęgi i pierwiastki — krok po kroku.</span>
         </button>
       </div>
     </div>
@@ -599,18 +589,19 @@ img{max-width:100%;}
     <div id="algebra-list"></div>
   </section>
 
-  <!-- HOMEWORK -->
-  <section id="screen-homework" hidden>
+  <!-- RACHUNKI -->
+  <section id="screen-rachunki" hidden>
     <div class="section-nav">
-      <button type="button" class="back-btn" id="back-home-homework">← Powrót do menu</button>
+      <button type="button" class="back-btn" id="back-home-rachunki">← Powrót do menu</button>
     </div>
-    <span class="eyebrow">Praca domowa</span>
-    <h1 class="disp" style="font-size:1.7rem; margin:6px 0 8px;">Zadania domowe</h1>
-    <p class="algebra-intro">Te same cztery kroki co w algebrze: co oznacza x, jakie równanie z tego wynika,
-      jak je rozwiązać i co ostatecznie odpowiadacie. Spróbujcie samodzielnie, zanim odsłonicie krok.</p>
+    <span class="eyebrow">Rachunki, ułamki i złożona arytmetyka</span>
+    <h1 class="disp" style="font-size:1.7rem; margin:6px 0 8px;">Rachunki, ułamki i złożona arytmetyka</h1>
+    <p class="algebra-intro">Kolejność działań, ułamki (zwykłe i mieszane), rachunki „na pieniądzach” oraz
+      potęgi i pierwiastki — dwanaście zadań, ten sam schemat co w algebrze. Kliknijcie „Odpowiedź”, żeby
+      odsłaniać kolejne kroki jeden po drugim — spróbujcie policzyć samodzielnie, zanim je odsłonicie.</p>
 
-    <div class="algebra-toc" id="homework-toc"></div>
-    <div id="homework-list"></div>
+    <div class="algebra-toc" id="rachunki-toc"></div>
+    <div id="rachunki-list"></div>
   </section>
 
 </div>
@@ -746,26 +737,108 @@ img{max-width:100%;}
   ];
   var algebraRevealed = ALGEBRA.map(function(){ return 0; }); // ile kroków odsłoniętych, na zadanie
 
-  // Praca domowa — zadane osobno, ten sam format co ALGEBRA.
-  var HOMEWORK = [
-    { title:"Bilety",
-      text:"Bilet normalny kosztuje o 10 zł więcej niż bilet ulgowy. Rodzina kupiła 2 bilety normalne i 3 ulgowe, płacąc łącznie 110 zł. Ile kosztuje bilet ulgowy?",
+  // Rachunki, ułamki i złożona arytmetyka — kolejność działań, ułamki (zwykłe i mieszane),
+  // rachunki „na pieniądzach”, potęgi i pierwiastki. Ten sam wzorzec 4 kroków co w algebrze,
+  // tylko krok 1 to „co liczymy najpierw” zamiast definicji x.
+  var RACHUNKI = [
+    { title:"Kolejność działań — kwadrat i nawias",
+      text:"Oblicz: 12 + 3 × (8 − 5)² ÷ 9",
       steps:[
-        { label:"1. Co oznacza x?", body:"x = cena biletu ulgowego (normalny = x + 10)" },
-        { label:"2. Równanie", body:"2 · (x + 10) + 3x = 110" },
-        { label:"3. Rozwiązanie", body:"2x + 20 + 3x = 110  →  5x = 90  →  x = 18" },
-        { label:"4. Odpowiedź", body:"Bilet ulgowy kosztuje 18 zł (normalny 28 zł).", note:"Częsty błąd: pomnożenie tylko x przez 2, bez uwzględnienia +10 w nawiasie." }
+        { label:"1. Co najpierw?", body:"Nawias, potem potęga: (8 − 5) = 3, a 3² = 9" },
+        { label:"2. Mnożenie i dzielenie", body:"3 × 9 = 27, a 27 ÷ 9 = 3" },
+        { label:"3. Dodawanie", body:"12 + 3" },
+        { label:"4. Wynik", body:"15", note:"Kolejność: najpierw nawiasy, potem potęgi/pierwiastki, potem × i ÷ (od lewej), na końcu + i −." }
       ] },
-    { title:"Mama i córka",
-      text:"Mama jest obecnie 3 razy starsza od córki. Za 12 lat będzie od niej 2 razy starsza. Ile lat ma teraz córka, a ile mama?",
+    { title:"Kolejność działań — nawias i sześcian",
+      text:"Oblicz: (15 − 3 × 4) + 2³",
       steps:[
-        { label:"1. Co oznacza x?", body:"x = wiek córki dzisiaj (mama ma dziś 3x lat)" },
-        { label:"2. Równanie", body:"3x + 12 = 2 · (x + 12)" },
-        { label:"3. Rozwiązanie", body:"3x + 12 = 2x + 24  →  x = 12" },
-        { label:"4. Odpowiedź", body:"Córka ma dziś 12 lat (mama ma 36 lat).", note:"Częsty błąd: dodanie 12 lat tylko do wieku mamy, bez dodania 12 lat do wieku córki po drugiej stronie równania." }
+        { label:"1. Co najpierw?", body:"W nawiasie najpierw mnożenie: 3 × 4 = 12, więc 15 − 12 = 3" },
+        { label:"2. Potęga", body:"2³ = 8" },
+        { label:"3. Dodawanie", body:"3 + 8" },
+        { label:"4. Wynik", body:"11", note:"Częsty błąd: odjęcie 3 od 15 przed wymnożeniem 3 × 4 w nawiasie." }
+      ] },
+    { title:"Kolejność działań — dzielenie i potęga",
+      text:"Oblicz: 100 ÷ (2 + 3)² × 4 − 6",
+      steps:[
+        { label:"1. Co najpierw?", body:"Nawias, potem potęga: (2 + 3) = 5, a 5² = 25" },
+        { label:"2. Dzielenie", body:"100 ÷ 25 = 4" },
+        { label:"3. Mnożenie", body:"4 × 4 = 16" },
+        { label:"4. Wynik", body:"16 − 6 = 10", note:"Mnożenie i dzielenie liczymy od lewej do prawej, w kolejności występowania." }
+      ] },
+    { title:"Ułamki — mnożenie i dodawanie",
+      text:"Oblicz: 3/4 × 2/5 + 1/10",
+      steps:[
+        { label:"1. Co najpierw?", body:"Mnożenie przed dodawaniem: 3/4 × 2/5 = 6/20 = 3/10" },
+        { label:"2. Wspólny mianownik", body:"3/10 i 1/10 już mają wspólny mianownik (10)" },
+        { label:"3. Dodawanie", body:"3/10 + 1/10 = 4/10" },
+        { label:"4. Wynik", body:"4/10 = 2/5 (po skróceniu przez 2)", note:"Ułamek zawsze warto na końcu skrócić do postaci nieskracalnej." }
+      ] },
+    { title:"Ułamki mieszane — odejmowanie",
+      text:"Oblicz: 2 1/3 − 1 5/6",
+      steps:[
+        { label:"1. Zamiana na ułamki niewłaściwe", body:"2 1/3 = 7/3, a 1 5/6 = 11/6" },
+        { label:"2. Wspólny mianownik", body:"7/3 = 14/6" },
+        { label:"3. Odejmowanie", body:"14/6 − 11/6 = 3/6" },
+        { label:"4. Wynik", body:"3/6 = 1/2", note:"Częsty błąd: odejmowanie osobno całości i osobno ułamków, kiedy ułamek odejmowany jest większy (tu 1/3 < 5/6) — trzeba pożyczyć z całości." }
+      ] },
+    { title:"Ułamki — dzielenie i odejmowanie",
+      text:"Oblicz: 5/6 ÷ 2/3 − 1/2",
+      steps:[
+        { label:"1. Co najpierw?", body:"Dzielenie przed odejmowaniem: 5/6 ÷ 2/3 = 5/6 × 3/2 = 15/12 = 5/4" },
+        { label:"2. Wspólny mianownik", body:"1/2 = 2/4" },
+        { label:"3. Odejmowanie", body:"5/4 − 2/4 = 3/4" },
+        { label:"4. Wynik", body:"3/4", note:"Dzielenie przez ułamek to mnożenie przez jego odwrotność — tu 2/3 zamienia się na 3/2." }
+      ] },
+    { title:"Zakupy — chleb i jabłka",
+      text:"Ola kupiła 3 bochenki chleba po 4,20 zł i 2 kg jabłek po 3,50 zł za kg. Zapłaciła banknotem 50 zł. Ile reszty dostała?",
+      steps:[
+        { label:"1. Chleb", body:"3 × 4,20 zł = 12,60 zł" },
+        { label:"2. Jabłka", body:"2 × 3,50 zł = 7,00 zł" },
+        { label:"3. Suma zakupów", body:"12,60 + 7,00 = 19,60 zł" },
+        { label:"4. Reszta", body:"50 − 19,60 = 30,40 zł", note:"Częsty błąd: dodanie cen jednostkowych zamiast kosztów całkowitych (4,20 + 3,50 to nie to samo, co 12,60 + 7,00)." }
+      ] },
+    { title:"Rabat na sukience",
+      text:"Sukienka kosztuje 120 zł. W sklepie jest rabat 15%. Ile trzeba za nią zapłacić?",
+      steps:[
+        { label:"1. Wartość rabatu", body:"15% z 120 zł = 0,15 × 120 = 18 zł" },
+        { label:"2. Cena po rabacie", body:"120 − 18 = 102 zł" },
+        { label:"3. Sprawdzenie", body:"102 zł to 85% z 120 zł — zgadza się (100% − 15% = 85%)" },
+        { label:"4. Odpowiedź", body:"Zapłacisz 102 zł, oszczędzasz 18 zł.", note:"Częsty błąd: pomylenie „15% taniej” z „kosztuje 15%”." }
+      ] },
+    { title:"Rachunek w restauracji",
+      text:"Rachunek za wspólny obiad wynosi 87,40 zł i ma być podzielony po równo na 4 osoby. Ile płaci każda z nich?",
+      steps:[
+        { label:"1. Co liczymy?", body:"87,40 zł ÷ 4 osoby" },
+        { label:"2. Dzielenie", body:"87,40 ÷ 4 = 21,85" },
+        { label:"3. Sprawdzenie", body:"21,85 × 4 = 87,40 ✓" },
+        { label:"4. Odpowiedź", body:"Każda osoba płaci 21,85 zł.", note:"Dzielenie liczb dziesiętnych: dzielimy tak jak liczby całkowite, pilnując przecinka w wyniku." }
+      ] },
+    { title:"Potęgi i pierwiastki — nawias",
+      text:"Oblicz: (2³ + √16) × 2 − 5",
+      steps:[
+        { label:"1. Potęga i pierwiastek", body:"2³ = 8, a √16 = 4" },
+        { label:"2. Suma w nawiasie", body:"8 + 4 = 12" },
+        { label:"3. Mnożenie", body:"12 × 2 = 24" },
+        { label:"4. Wynik", body:"24 − 5 = 19", note:"Potęgi i pierwiastki liczymy zawsze przed mnożeniem, dzieleniem, dodawaniem i odejmowaniem." }
+      ] },
+    { title:"Pierwiastek z sumy kwadratów",
+      text:"Oblicz: √(3² + 4²)",
+      steps:[
+        { label:"1. Potęgi pod pierwiastkiem", body:"3² = 9, a 4² = 16" },
+        { label:"2. Dodawanie", body:"9 + 16 = 25" },
+        { label:"3. Pierwiastkowanie", body:"√25 = 5" },
+        { label:"4. Wynik", body:"5", note:"To trójka pitagorejska 3-4-5 — ten sam wzorzec wróci przy twierdzeniu Pitagorasa." }
+      ] },
+    { title:"Potęgi i pierwiastek — trzy składniki",
+      text:"Oblicz: 5² − 2 × √49 + 3³",
+      steps:[
+        { label:"1. Potęgi i pierwiastek", body:"5² = 25, √49 = 7, 3³ = 27" },
+        { label:"2. Mnożenie", body:"2 × 7 = 14" },
+        { label:"3. Odejmowanie", body:"25 − 14 = 11" },
+        { label:"4. Wynik", body:"11 + 27 = 38", note:"Przy kilku + i − liczymy od lewej do prawej, tak jak są zapisane." }
       ] }
   ];
-  var homeworkRevealed = HOMEWORK.map(function(){ return 0; }); // ile kroków odsłoniętych, na zadanie
+  var rachunkiRevealed = RACHUNKI.map(function(){ return 0; });
 
   var mode = "team"; // "team" | "race"
   var players = [
@@ -1004,8 +1077,8 @@ img{max-width:100%;}
     else { hide("topics-panel"); }
   });
 
-  // ---- algebra section ----
-  function algebraStepLine(step){
+  // ---- odsłanialne zadania krok-po-kroku (algebra, rachunki) ----
+  function stepLine(step){
     var line = document.createElement("div");
     line.className = "step-line" + (step.isAnswer ? " answer" : "");
     var label = document.createElement("span");
@@ -1018,16 +1091,16 @@ img{max-width:100%;}
     return line;
   }
 
-  function renderAlgebraCard(i){
-    var card = el("problem-" + i);
+  function renderProblemCard(data, revealedArr, prefix, i){
+    var card = el(prefix + i);
     var linesBox = card.querySelector(".step-lines");
     var dotsBox = card.querySelector(".step-dots");
     var btn = card.querySelector(".reveal-btn");
-    var revealed = algebraRevealed[i];
+    var revealed = revealedArr[i];
     linesBox.innerHTML = "";
     for (var s = 0; s < revealed; s++){
-      var step = ALGEBRA[i].steps[s];
-      linesBox.appendChild(algebraStepLine({ label:step.label, body:step.body, note:step.note, isAnswer: s === 3 }));
+      var step = data[i].steps[s];
+      linesBox.appendChild(stepLine({ label:step.label, body:step.body, note:step.note, isAnswer: s === 3 }));
     }
     dotsBox.innerHTML = "";
     for (var d = 0; d < 4; d++){
@@ -1040,25 +1113,25 @@ img{max-width:100%;}
     else btn.textContent = "Ukryj kroki";
   }
 
-  function buildAlgebra(){
-    var toc = el("algebra-toc");
-    var list = el("algebra-list");
+  function buildProblemSection(data, revealedArr, tocId, listId, prefix){
+    var toc = el(tocId);
+    var list = el(listId);
     if (toc.children.length) return; // już zbudowane
     toc.innerHTML = "";
     list.innerHTML = "";
-    ALGEBRA.forEach(function(prob, i){
+    data.forEach(function(prob, i){
       var chip = document.createElement("button");
       chip.type = "button";
       chip.className = "toc-chip";
       chip.textContent = (i+1) + ". " + prob.title;
       chip.addEventListener("click", function(){
-        el("problem-" + i).scrollIntoView({ behavior:"smooth", block:"start" });
+        el(prefix + i).scrollIntoView({ behavior:"smooth", block:"start" });
       });
       toc.appendChild(chip);
 
       var card = document.createElement("div");
       card.className = "problem-card";
-      card.id = "problem-" + i;
+      card.id = prefix + i;
 
       var num = document.createElement("span");
       num.className = "problem-num";
@@ -1077,9 +1150,9 @@ img{max-width:100%;}
       btn.className = "reveal-btn";
       btn.textContent = "Odpowiedź →";
       btn.addEventListener("click", function(){
-        if (algebraRevealed[i] >= 4) algebraRevealed[i] = 0;
-        else algebraRevealed[i]++;
-        renderAlgebraCard(i);
+        if (revealedArr[i] >= 4) revealedArr[i] = 0;
+        else revealedArr[i]++;
+        renderProblemCard(data, revealedArr, prefix, i);
         saveState();
       });
       var dots = document.createElement("span");
@@ -1103,19 +1176,19 @@ img{max-width:100%;}
         prevBtn.className = "back-btn";
         prevBtn.textContent = "← Poprzednie zadanie";
         prevBtn.addEventListener("click", function(){
-          el("problem-" + (i-1)).scrollIntoView({ behavior:"smooth", block:"start" });
+          el(prefix + (i-1)).scrollIntoView({ behavior:"smooth", block:"start" });
         });
         navRow.appendChild(prevBtn);
       } else {
         navRow.appendChild(document.createElement("span"));
       }
-      if (i < ALGEBRA.length - 1){
+      if (i < data.length - 1){
         var nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "back-btn";
         nextBtn.textContent = "Następne zadanie →";
         nextBtn.addEventListener("click", function(){
-          el("problem-" + (i+1)).scrollIntoView({ behavior:"smooth", block:"start" });
+          el(prefix + (i+1)).scrollIntoView({ behavior:"smooth", block:"start" });
         });
         navRow.appendChild(nextBtn);
       } else {
@@ -1124,92 +1197,20 @@ img{max-width:100%;}
       card.appendChild(navRow);
 
       list.appendChild(card);
-      renderAlgebraCard(i);
+      renderProblemCard(data, revealedArr, prefix, i);
     });
   }
 
-  function renderHomeworkCard(i){
-    var card = el("hw-problem-" + i);
-    var linesBox = card.querySelector(".step-lines");
-    var dotsBox = card.querySelector(".step-dots");
-    var btn = card.querySelector(".reveal-btn");
-    var revealed = homeworkRevealed[i];
-    linesBox.innerHTML = "";
-    for (var s = 0; s < revealed; s++){
-      var step = HOMEWORK[i].steps[s];
-      linesBox.appendChild(algebraStepLine({ label:step.label, body:step.body, note:step.note, isAnswer: s === 3 }));
-    }
-    dotsBox.innerHTML = "";
-    for (var d = 0; d < 4; d++){
-      var dot = document.createElement("span");
-      dot.className = "step-dot" + (d < revealed ? " on" : "");
-      dotsBox.appendChild(dot);
-    }
-    if (revealed === 0) btn.textContent = "Odpowiedź →";
-    else if (revealed < 4) btn.textContent = "Następny krok →";
-    else btn.textContent = "Ukryj kroki";
+  function buildAlgebra(){
+    buildProblemSection(ALGEBRA, algebraRevealed, "algebra-toc", "algebra-list", "problem-");
   }
-
-  function buildHomework(){
-    var toc = el("homework-toc");
-    var list = el("homework-list");
-    if (toc.children.length) return; // już zbudowane
-    toc.innerHTML = "";
-    list.innerHTML = "";
-    HOMEWORK.forEach(function(prob, i){
-      var chip = document.createElement("button");
-      chip.type = "button";
-      chip.className = "toc-chip";
-      chip.textContent = (i+1) + ". " + prob.title;
-      chip.addEventListener("click", function(){
-        el("hw-problem-" + i).scrollIntoView({ behavior:"smooth", block:"start" });
-      });
-      toc.appendChild(chip);
-
-      var card = document.createElement("div");
-      card.className = "problem-card";
-      card.id = "hw-problem-" + i;
-
-      var num = document.createElement("span");
-      num.className = "problem-num";
-      num.textContent = "Zadanie " + (i+1) + " · " + prob.title;
-      card.appendChild(num);
-
-      var text = document.createElement("p");
-      text.className = "problem-text";
-      text.textContent = prob.text;
-      card.appendChild(text);
-
-      var controls = document.createElement("div");
-      controls.className = "reveal-controls";
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "reveal-btn";
-      btn.textContent = "Odpowiedź →";
-      btn.addEventListener("click", function(){
-        if (homeworkRevealed[i] >= 4) homeworkRevealed[i] = 0;
-        else homeworkRevealed[i]++;
-        renderHomeworkCard(i);
-        saveState();
-      });
-      var dots = document.createElement("span");
-      dots.className = "step-dots";
-      controls.appendChild(btn);
-      controls.appendChild(dots);
-      card.appendChild(controls);
-
-      var lines = document.createElement("div");
-      lines.className = "step-lines";
-      card.appendChild(lines);
-
-      list.appendChild(card);
-      renderHomeworkCard(i);
-    });
+  function buildRachunki(){
+    buildProblemSection(RACHUNKI, rachunkiRevealed, "rachunki-toc", "rachunki-list", "rnum-");
   }
 
   // ---- home / section navigation ----
   function goHome(){
-    hide("screen-start"); hide("screen-algebra"); hide("screen-homework");
+    hide("screen-start"); hide("screen-algebra"); hide("screen-rachunki");
     show("screen-home");
     saveState();
   }
@@ -1225,15 +1226,15 @@ img{max-width:100%;}
     show("screen-algebra");
     saveState();
   });
-  el("home-homework").addEventListener("click", function(){
-    buildHomework();
+  el("home-rachunki").addEventListener("click", function(){
+    buildRachunki();
     hide("screen-home");
-    show("screen-homework");
+    show("screen-rachunki");
     saveState();
   });
   el("back-home-start").addEventListener("click", goHome);
+  el("back-home-rachunki").addEventListener("click", goHome);
   el("back-home-algebra").addEventListener("click", goHome);
-  el("back-home-homework").addEventListener("click", goHome);
 
   // ---- mode selector ----
   document.querySelectorAll(".mode-card").forEach(function(card){
@@ -1282,7 +1283,7 @@ img{max-width:100%;}
     if (!el("screen-results").hidden) return "results";
     if (!el("screen-breakdown").hidden) return "breakdown";
     if (!el("screen-algebra").hidden) return "algebra";
-    if (!el("screen-homework").hidden) return "homework";
+    if (!el("screen-rachunki").hidden) return "rachunki";
     if (!el("screen-start").hidden) return "start";
     return "home";
   }
@@ -1291,7 +1292,7 @@ img{max-width:100%;}
     try{
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         mode:mode, players:players, turn:turn, phase:currentPhase(),
-        algebraRevealed:algebraRevealed, homeworkRevealed:homeworkRevealed
+        algebraRevealed:algebraRevealed, rachunkiRevealed:rachunkiRevealed
       }));
     }catch(e){}
   }
@@ -1303,12 +1304,6 @@ img{max-width:100%;}
     }catch(e){ return null; }
   }
 
-  el("global-reset").addEventListener("click", function(){
-    if (!confirm("Wyczyścić zapisany postęp i zacząć od nowa?")) return;
-    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-    location.reload();
-  });
-
   function boot(){
     var data = loadState();
     if (data && data.players && data.phase && data.phase !== "home" && data.phase !== "start"){
@@ -1318,17 +1313,17 @@ img{max-width:100%;}
       if (data.algebraRevealed && data.algebraRevealed.length === ALGEBRA.length){
         algebraRevealed = data.algebraRevealed;
       }
-      if (data.homeworkRevealed && data.homeworkRevealed.length === HOMEWORK.length){
-        homeworkRevealed = data.homeworkRevealed;
+      if (data.rachunkiRevealed && data.rachunkiRevealed.length === RACHUNKI.length){
+        rachunkiRevealed = data.rachunkiRevealed;
       }
       hide("screen-home"); hide("screen-start"); hide("screen-game"); hide("screen-bonus");
-      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-homework");
+      hide("screen-results"); hide("screen-breakdown"); hide("screen-algebra"); hide("screen-rachunki");
       if (data.phase === "game"){ show("screen-game"); renderQuestion(); }
       else if (data.phase === "bonus"){ show("screen-bonus"); }
       else if (data.phase === "results"){ show("screen-results"); goToResults(); }
       else if (data.phase === "breakdown"){ show("screen-results"); goToResults(); goToBreakdown(); }
       else if (data.phase === "algebra"){ buildAlgebra(); show("screen-algebra"); }
-      else if (data.phase === "homework"){ buildHomework(); show("screen-homework"); }
+      else if (data.phase === "rachunki"){ buildRachunki(); show("screen-rachunki"); }
       else { show("screen-home"); }
     } else {
       show("screen-home");
